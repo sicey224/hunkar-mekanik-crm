@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 const loginScreen = document.getElementById('loginScreen');
 const dashboardScreen = document.getElementById('dashboardScreen');
@@ -213,7 +213,7 @@ crmForm.addEventListener('submit', async (e) => {
   const token = localStorage.getItem('hunkar_admin_token');
   
   try {
-    const res = await fetch(`${API_URL}/leads/${selectedLeadId}`, {
+    const res = await fetch(`${API_URL}/leads?id=${selectedLeadId}`, {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -241,7 +241,7 @@ deleteBtn.addEventListener('click', async () => {
   const token = localStorage.getItem('hunkar_admin_token');
   
   try {
-    const res = await fetch(`${API_URL}/leads/${selectedLeadId}`, {
+    const res = await fetch(`${API_URL}/leads?id=${selectedLeadId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
