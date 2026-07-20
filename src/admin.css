@@ -1,10 +1,10 @@
 :root {
-  --bg-color: #050811;
-  --bg-sidebar: #090e1a;
-  --panel-bg: rgba(13, 20, 38, 0.45);
-  --panel-border: rgba(255, 255, 255, 0.06);
-  --text-main: #f1f5f9;
-  --text-muted: #64748b;
+  --bg-color: #0b0f19;
+  --bg-sidebar: #070a12;
+  --panel-bg: rgba(22, 31, 54, 0.7);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
   
   /* Brand Color: Premium Warm Orange & Gold Gradients */
   --primary-color: #f97316;
@@ -581,11 +581,11 @@ body {
 
 .leads-table td {
   padding: 18px 20px;
-  background-color: rgba(255, 255, 255, 0.015);
-  border-top: 1px solid rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  background-color: rgba(255, 255, 255, 0.025);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   font-size: 0.95rem;
-  color: #cbd5e1;
+  color: #f1f5f9;
   transition: var(--transition);
 }
 

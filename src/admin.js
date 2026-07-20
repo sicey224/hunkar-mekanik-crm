@@ -52,7 +52,7 @@ function showLogin() {
 
 function showDashboard() {
   loginScreen.style.display = 'none';
-  dashboardScreen.style.display = 'block';
+  dashboardScreen.style.display = 'grid';
 }
 
 // Login
