@@ -276,3 +276,155 @@ document.getElementById('refreshBtn').addEventListener('click', fetchLeads);
 
 // Initial check
 checkAuth();
+
+// Add Lead Modal Logic
+const addLeadBtn = document.getElementById('addLeadBtn');
+const addLeadModal = document.getElementById('addLeadModal');
+const closeAddLeadModalBtn = document.getElementById('closeAddLeadModalBtn');
+const addLeadForm = document.getElementById('addLeadForm');
+
+if (addLeadBtn && addLeadModal) {
+  addLeadBtn.addEventListener('click', () => {
+    addLeadModal.style.display = 'flex';
+  });
+  
+  closeAddLeadModalBtn.addEventListener('click', () => {
+    addLeadModal.style.display = 'none';
+  });
+  
+  window.addEventListener('click', (e) => {
+    if (e.target === addLeadModal) {
+      addLeadModal.style.display = 'none';
+    }
+  });
+
+  addLeadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fullName = document.getElementById('newLeadName').value;
+    const phone = document.getElementById('newLeadPhone').value;
+    const service = document.getElementById('newLeadService').value;
+    const message = document.getElementById('newLeadMessage').value;
+    
+    const saveBtn = document.getElementById('saveNewLeadBtn');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = 'Kaydediliyor...';
+    
+    try {
+      const res = await fetch(`${API_URL}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, phone, service, message })
+      });
+      if (res.ok) {
+        addLeadModal.style.display = 'none';
+        addLeadForm.reset();
+        fetchLeads();
+      } else {
+        alert('Kaydedilemedi.');
+      }
+    } catch(err) {
+      alert('Sunucu hatası.');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Talebi Kaydet</span>';
+    }
+  });
+}
+
+// View Switching & Reports
+const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+let statusChartInstance = null;
+let serviceChartInstance = null;
+
+navItems.forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    if(item.classList.contains('disabled')) return;
+    
+    navItems.forEach(nav => nav.classList.remove('active'));
+    item.classList.add('active');
+    
+    const view = item.getAttribute('data-view');
+    if(view === 'reports') {
+      document.querySelector('.app-main:not(#reportsMain)').style.display = 'none';
+      document.getElementById('reportsMain').style.display = 'block';
+      renderCharts();
+    } else {
+      document.getElementById('reportsMain').style.display = 'none';
+      document.querySelector('.app-main:not(#reportsMain)').style.display = 'block';
+    }
+  });
+});
+
+function renderCharts() {
+  if (typeof Chart === 'undefined') return;
+  
+  const statusCounts = {
+    'Yeni': 0, 'Görüşülüyor': 0, 'Teklif Verildi': 0, 'Tamamlandı': 0, 'İptal Edildi': 0
+  };
+  const serviceCounts = {};
+  
+  allLeads.forEach(l => {
+    const s = l.status || 'Yeni';
+    if(statusCounts[s] !== undefined) statusCounts[s]++;
+    
+    const srv = l.service || 'Diğer';
+    serviceCounts[srv] = (serviceCounts[srv] || 0) + 1;
+  });
+  
+  const statusCtx = document.getElementById('statusChart');
+  const serviceCtx = document.getElementById('serviceChart');
+  
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+  
+  if (statusChartInstance) statusChartInstance.destroy();
+  if (statusCtx) {
+    statusChartInstance = new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(statusCounts),
+        datasets: [{
+          data: Object.values(statusCounts),
+          backgroundColor: ['#38bdf8', '#fbbf24', '#c084fc', '#4ade80', '#f87171'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right' }
+        }
+      }
+    });
+  }
+  
+  if (serviceChartInstance) serviceChartInstance.destroy();
+  if (serviceCtx) {
+    serviceChartInstance = new Chart(serviceCtx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(serviceCounts),
+        datasets: [{
+          label: 'Talep Sayısı',
+          data: Object.values(serviceCounts),
+          backgroundColor: '#f97316',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+}
