@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hünkar Havalandırma - Yönetici Paneli</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/admin.css">
+</head>
+<body>
+  
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-card">
+      <img src="/hunkar_mekanik.png" alt="Logo" class="admin-logo">
+      <h2>Yönetici Girişi</h2>
+      <p>Lütfen devam etmek için şifrenizi girin.</p>
+      <form id="loginForm">
+        <input type="password" id="adminPassword" placeholder="Yönetici Şifresi" required>
+        <button type="submit" class="btn-primary">Giriş Yap</button>
+      </form>
+      <p id="loginError" class="error-msg"></p>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div id="dashboardScreen" class="dashboard-container" style="display: none;">
+    <header class="admin-header">
+      <div class="brand">
+        <img src="/hunkar_mekanik.png" alt="Logo" class="header-logo">
+        <h1>Yönetici CRM Paneli</h1>
+      </div>
+      <button id="logoutBtn" class="btn-outline">Çıkış Yap</button>
+    </header>
+
+    <main class="admin-main">
+      <!-- İstatistik Kartları -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Toplam Talep</h3>
+          <p id="statTotal">0</p>
+        </div>
+        <div class="stat-card new">
+          <h3>Yeni Talep</h3>
+          <p id="statNew">0</p>
+        </div>
+        <div class="stat-card contacted">
+          <h3>Görüşülen</h3>
+          <p id="statContacted">0</p>
+        </div>
+        <div class="stat-card completed">
+          <h3>Tamamlanan</h3>
+          <p id="statCompleted">0</p>
+        </div>
+      </div>
+
+      <div class="dashboard-header">
+        <h2>Talep Yönetimi</h2>
+        <div class="header-actions">
+          <button id="refreshBtn" class="btn-primary small">Yenile</button>
+        </div>
+      </div>
+
+      <!-- Filtreler ve Arama -->
+      <div class="filters-container">
+        <div class="search-box">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="searchQuery" placeholder="Müşteri adı veya telefon ara...">
+        </div>
+        <div class="filter-box">
+          <select id="statusFilter">
+            <option value="all">Tüm Durumlar</option>
+            <option value="Yeni">Yeni</option>
+            <option value="Görüşülüyor">Görüşülüyor</option>
+            <option value="Teklif Verildi">Teklif Verildi</option>
+            <option value="Tamamlandı">Tamamlandı</option>
+            <option value="İptal Edildi">İptal Edildi</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Tarih</th>
+              <th>Müşteri Adı</th>
+              <th>Telefon</th>
+              <th>İstenilen Hizmet</th>
+              <th>Durum</th>
+              <th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="leadsTableBody">
+            <!-- Data will be populated here via JS -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="loadingState" class="state-msg">Veriler yükleniyor...</div>
+      <div id="emptyState" class="state-msg" style="display: none;">Aramanızla eşleşen veya henüz gelen bir talep yok.</div>
+    </main>
+  </div>
+
+  <!-- Lead Detail & CRM Modal -->
+  <div id="leadModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Müşteri Talep Detayı</h2>
+        <span class="close-btn" id="closeModalBtn">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-row">
+            <strong>Müşteri Adı</strong>
+            <span id="detailName">-</span>
+          </div>
+          <div class="detail-row">
+            <strong>Telefon</strong>
+            <span id="detailPhone">-</span>
+          </div>
+          <div class="detail-row">
+            <strong>Hizmet</strong>
+            <span id="detailService">-</span>
+          </div>
+          <div class="detail-row">
+            <strong>Tarih</strong>
+            <span id="detailDate">-</span>
+          </div>
+        </div>
+        <div class="detail-row full-width">
+          <strong>Müşteri Mesajı</strong>
+          <p id="detailMessage" class="message-box">-</p>
+        </div>
+        
+        <div class="modal-divider"></div>
+        
+        <form id="crmForm">
+          <div class="form-group">
+            <label for="leadStatus">Takip Durumu</label>
+            <select id="leadStatus" class="form-control">
+              <option value="Yeni">Yeni</option>
+              <option value="Görüşülüyor">Görüşülüyor</option>
+              <option value="Teklif Verildi">Teklif Verildi</option>
+              <option value="Tamamlandı">Tamamlandı</option>
+              <option value="İptal Edildi">İptal Edildi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="leadNotes">CRM / Görüşme Notları</label>
+            <textarea id="leadNotes" class="form-control" rows="4" placeholder="Müşteri görüşmesi detayları, teklif detayları, fiyat veya notlar..."></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="deleteBtn" class="btn-danger">Talebi Sil</button>
+            <button type="submit" class="btn-primary">Güncelle ve Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/admin.js"></script>
+</body>
+</html>
