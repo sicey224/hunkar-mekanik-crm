@@ -9,14 +9,19 @@ async function getLeads() {
     const res = await fetch(`${API_BASE}/GetValue/${APP_KEY}/leads`);
     const text = await res.json();
     if (!text) return [];
-    return JSON.parse(text);
+    try {
+      const decoded = Buffer.from(text, 'base64url').toString('utf8');
+      return JSON.parse(decoded);
+    } catch(e) {
+      return JSON.parse(text);
+    }
   } catch (err) {
     return [];
   }
 }
 
 async function saveLeads(leads) {
-  const value = encodeURIComponent(JSON.stringify(leads));
+  const value = Buffer.from(JSON.stringify(leads)).toString('base64url');
   const res = await fetch(`${API_BASE}/UpdateValue/${APP_KEY}/leads/${value}`, {
     method: 'POST'
   });
