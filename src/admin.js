@@ -15,7 +15,8 @@ const statContacted = document.getElementById('statContacted');
 const statCompleted = document.getElementById('statCompleted');
 
 const searchQuery = document.getElementById('searchQuery');
-const statusFilter = document.getElementById('statusFilter');
+const statusFilterContainer = document.getElementById('statusFilterContainer');
+let activeStatus = 'all';
 
 const leadModal = document.getElementById('leadModal');
 const closeModalBtn = document.getElementById('closeModalBtn');
@@ -130,7 +131,7 @@ function updateStats() {
 // Filter and Render Leads
 function filterAndRenderLeads() {
   const query = searchQuery.value.toLowerCase().trim();
-  const filter = statusFilter.value;
+  const filter = activeStatus;
   
   const filtered = allLeads.filter(lead => {
     const matchesSearch = lead.fullName.toLowerCase().includes(query) || 
@@ -259,7 +260,18 @@ deleteBtn.addEventListener('click', async () => {
 
 // Event listeners for filters
 searchQuery.addEventListener('input', filterAndRenderLeads);
-statusFilter.addEventListener('change', filterAndRenderLeads);
+
+if (statusFilterContainer) {
+  const tabButtons = statusFilterContainer.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeStatus = btn.getAttribute('data-status');
+      filterAndRenderLeads();
+    });
+  });
+}
 document.getElementById('refreshBtn').addEventListener('click', fetchLeads);
 
 // Initial check
